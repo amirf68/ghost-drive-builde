@@ -21,11 +21,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install customtkinter pyinstaller
 
-    - name: Build Standalone EXE
+    - name: Build Standalone EXE with Admin Rights
       run: |
         pyinstaller --noconsole --onefile --uac-admin --name "GhostDriveWizard" app.py
 
-    - name: Upload EXE
+    - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
         name: GhostDriveWizard-Windows
