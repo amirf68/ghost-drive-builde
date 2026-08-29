@@ -1,9 +1,23 @@
 import os
+import sys
+import ctypes
 import subprocess
 import threading
 import random
 import string
 import customtkinter as ctk
+
+# بررسی و اجرای خودکار در حالت Administrator
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+
+if not is_admin():
+    # درخواست خودکار دسترسی ادمین از ویندوز
+    ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
+    sys.exit()
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -21,7 +35,7 @@ MAGIC_NAMES = [
 class GhostDriveApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("⚡ Wizard Ghost Drive App")
+        self.title("⚡ Wizard Ghost Drive App (Administrator)")
         self.geometry("620x660")
         self.resizable(False, False)
 
@@ -62,7 +76,7 @@ class GhostDriveApp(ctk.CTk):
 
         self.log_box = ctk.CTkTextbox(self, height=180, font=("Consolas", 12))
         self.log_box.pack(fill="both", padx=25, pady=15)
-        self.log("Ready. Select real drive and click Create...")
+        self.log("Running with Administrator rights. Ready.")
 
     def log(self, text):
         self.log_box.insert("end", f"> {text}\n")
@@ -114,7 +128,7 @@ assign letter={target}
         self.run_cmd("diskpart /s dp.txt")
         if os.path.exists("dp.txt"): os.remove("dp.txt")
 
-        self.log("Copying 0-byte ghost files (Robocopy)...")
+        self.log("Copying 0-byte ghost files...")
         self.run_cmd(f'robocopy "{src}" "{dest}" /E /CREATE /XD "$RECYCLE.BIN" "System Volume Information" /R:1 /W:1 /A-:SH')
         
         self.log("Copying icons and configs...")
@@ -124,12 +138,12 @@ assign letter={target}
         ps_icons = f"Get-ChildItem -Path '{dest}\\' -Filter 'desktop.ini' -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {{ attrib +h +s $_.FullName; attrib +r $_.DirectoryName }}"
         subprocess.run(["powershell", "-Command", ps_icons])
 
-        self.log("Calculating & applying exact space usage...")
+        self.log("Simulating exact disk space...")
         ps_size = f"""$E = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='{src}'"; $S = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='{dest}'"; $N = $S.FreeSpace - $E.FreeSpace; if ($N -gt 0) {{ fsutil file createnew "{dest}\\SpaceFiller.dat" $N; attrib +h +s "{dest}\\SpaceFiller.dat" }}"""
         subprocess.run(["powershell", "-Command", ps_size])
 
         self.run_cmd("taskkill /f /im explorer.exe && start explorer.exe")
-        self.log(f"SUCCESS: Drive {drive_name} ({target}:) created perfectly!")
+        self.log(f"SUCCESS: Drive {drive_name} ({target}:) is completely ready!")
 
     def start_sync(self):
         threading.Thread(target=self._task_sync, daemon=True).start()
@@ -141,13 +155,13 @@ assign letter={target}
         dest = f"{target}:"
 
         if not os.path.exists(f"{dest}\\"):
-            self.log(f"ERROR: Virtual drive {dest} is not mounted!")
+            self.log(f"ERROR: Drive {dest} is not mounted!")
             return
 
         self.log(f"Syncing changes from {src} to {dest}...")
         self.run_cmd(f'robocopy "{src}" "{dest}" /E /CREATE /PURGE /XD "$RECYCLE.BIN" "System Volume Information" /R:1 /W:1 /A-:SH')
         self.run_cmd(f'robocopy "{src}" "{dest}" desktop.ini *.ico *.dll /S /LEV:3 /R:1 /W:1 /COPY:DAT')
-        self.log(f"SUCCESS: Drive {dest} synced successfully!")
+        self.log(f"SUCCESS: Drive {dest} updated successfully!")
 
 if __name__ == "__main__":
     app = GhostDriveApp()
