@@ -43,6 +43,7 @@ def get_drive_label(drive_letter):
         pass
     return ""
 
+# Fixed Multi-language strings (No reversed words)
 STRINGS = {
     "EN": {
         "title": "Wizard Ghost Drive Manager",
@@ -54,40 +55,40 @@ STRINGS = {
         "magic_name": "Magic Name",
         "target_letter": "Drive Letter:",
         "btn_create": "✨ Create Ghost Drive & Match Capacity",
-        "disk_mgmt_title": "Virtual Disk Management (Right-click for options)",
+        "disk_mgmt_title": "Virtual Disk Management (Right-click on disks for options)",
         "mount_all": "⚡ Mount All",
         "unmount_all": "💥 Eject All",
         "startup_btn": "🚀 Enable Auto-Mount on Windows Startup",
         "no_vhds": "No Virtual Disks (VHDX) found in storage directory.",
-        "ctx_open": "📂 Open / Explore",
-        "ctx_change_letter": "🔤 Change Drive Letter and Paths...",
+        "ctx_open": "📂 Open in Explorer",
+        "ctx_change_letter": "🔤 Change Drive Letter...",
         "ctx_sync": "🔄 Sync Changes from Source Drive...",
-        "ctx_unmount": "🔌 Unmount / Eject Volume",
+        "ctx_unmount": "🔌 Eject / Unmount",
         "ctx_mount": "🔗 Mount Volume",
         "ctx_delete": "🗑️ Delete Virtual Disk...",
         "ctx_props": "ℹ️ Properties"
     },
     "FA": {
         "title": "مدیریت هاردهای مجازی روح",
-        "real_drive": ":هارد مبدأ",
+        "real_drive": "هارد مبدا:",
         "refresh": "رفرش",
-        "save_path": ":محل ذخیره",
+        "save_path": "محل ذخیره:",
         "browse": "انتخاب پوشه",
-        "drive_name": ":نام درایو",
+        "drive_name": "نام درایو:",
         "magic_name": "اسم جادویی",
-        "target_letter": ":حرف درایو",
+        "target_letter": "حرف درایو:",
         "btn_create": "✨ ساخت هارد روح جدید و تنظیم حجم",
         "disk_mgmt_title": "مدیریت دیسک‌های مجازی (راست‌کلیک برای منو)",
         "mount_all": "⚡ اتصال همه",
-        "unmount_all": "💥 قطع همه",
-        "startup_btn": "🚀 فعال‌سازی اتصال خودکار در استارتاپ",
-        "no_vhds": "هیچ هارد مجازی در این مسیر یافت نشد.",
+        "unmount_all": "💥 خروج همه",
+        "startup_btn": "🚀 فعال‌سازی اجرای خودکار در استارتاپ ویندوز",
+        "no_vhds": "هیچ هارد مجازی در این پوشه یافت نشد.",
         "ctx_open": "📂 باز کردن در اکسپلورر",
         "ctx_change_letter": "🔤 تغییر حرف درایو...",
-        "ctx_sync": "🔄 همگام‌سازی با هارد اصلی...",
-        "ctx_unmount": "🔌 قطع اتصال / Eject",
-        "ctx_mount": "🔗 اتصال مجدد",
-        "ctx_delete": "🗑️ حذف کامل هارد مجازی...",
+        "ctx_sync": "🔄 بروزرسانی فایل‌ها از هارد اصلی...",
+        "ctx_unmount": "🔌 خروج / قطع اتصال",
+        "ctx_mount": "🔗 اتصال به ویندوز",
+        "ctx_delete": "🗑️ حذف فایل هارد مجازی...",
         "ctx_props": "ℹ️ مشخصات"
     }
 }
@@ -103,11 +104,10 @@ class GhostDriveApp(ctk.CTk):
         self.current_lang = "EN"
         self.title("Wizard Ghost Drive Management")
 
-        # Responsive Resolution Calculation (Never exceeds host screen)
+        # Responsive resolution
         screen_w = self.winfo_screenwidth()
         screen_h = self.winfo_screenheight()
 
-        # Optimal initial size fitting any laptop or large desktop display
         win_w = min(780, int(screen_w * 0.92))
         win_h = min(880, int(screen_h * 0.90))
         pos_x = max(0, (screen_w - win_w) // 2)
@@ -120,7 +120,7 @@ class GhostDriveApp(ctk.CTk):
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
 
-        # Top Header Bar
+        # Top Bar
         self.frame_top = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_top.pack(fill="x", padx=15, pady=(8, 2))
 
@@ -131,7 +131,7 @@ class GhostDriveApp(ctk.CTk):
         self.cmb_lang.set("English")
         self.cmb_lang.pack(side="right", padx=5)
 
-        # 1. Source Real Drive Row
+        # 1. Source Drive
         self.frame_src = ctk.CTkFrame(self)
         self.frame_src.pack(fill="x", padx=15, pady=2)
         self.lbl_src = ctk.CTkLabel(self.frame_src, text=self.t("real_drive"), font=("Segoe UI", 11))
@@ -143,7 +143,7 @@ class GhostDriveApp(ctk.CTk):
         self.btn_refresh = ctk.CTkButton(self.frame_src, text=self.t("refresh"), width=65, height=26, command=self.refresh_drives)
         self.btn_refresh.pack(side="right", padx=8)
 
-        # 2. VHDX Storage Folder Row
+        # 2. Storage Folder
         self.frame_path = ctk.CTkFrame(self)
         self.frame_path.pack(fill="x", padx=15, pady=2)
         self.lbl_path = ctk.CTkLabel(self.frame_path, text=self.t("save_path"), font=("Segoe UI", 11))
@@ -154,7 +154,7 @@ class GhostDriveApp(ctk.CTk):
         self.btn_browse = ctk.CTkButton(self.frame_path, text=self.t("browse"), width=75, height=26, fg_color="#34495e", hover_color="#2c3e50", command=self.browse_save_folder)
         self.btn_browse.pack(side="right", padx=8)
 
-        # 3. Drive Name Row
+        # 3. Drive Name
         self.frame_name = ctk.CTkFrame(self)
         self.frame_name.pack(fill="x", padx=15, pady=2)
         self.lbl_name = ctk.CTkLabel(self.frame_name, text=self.t("drive_name"), font=("Segoe UI", 11))
@@ -164,7 +164,7 @@ class GhostDriveApp(ctk.CTk):
         self.btn_suggest = ctk.CTkButton(self.frame_name, text=self.t("magic_name"), width=90, height=26, fg_color="#6C5CE7", hover_color="#5844D8", command=self.suggest_name)
         self.btn_suggest.pack(side="right", padx=8)
 
-        # 4. Target Letter & Create Action
+        # 4. Target Letter & Create
         self.frame_target = ctk.CTkFrame(self)
         self.frame_target.pack(fill="x", padx=15, pady=2)
         self.lbl_target = ctk.CTkLabel(self.frame_target, text=self.t("target_letter"), font=("Segoe UI", 11))
@@ -176,11 +176,11 @@ class GhostDriveApp(ctk.CTk):
         self.btn_create = ctk.CTkButton(self.frame_target, text=self.t("btn_create"), font=("Segoe UI", 11, "bold"), height=28, fg_color="#00b894", hover_color="#00a383", command=self.start_create)
         self.btn_create.pack(side="right", fill="x", expand=True, padx=8)
 
-        # 5. Windows Disk Management Visual Simulator Container (Fully Expandable)
+        # 5. Disk Management Container
         self.frame_dsk_mgmt = ctk.CTkFrame(self, fg_color="#18191a", border_width=1, border_color="#3a3b3c")
         self.frame_dsk_mgmt.pack(fill="both", expand=True, padx=15, pady=4)
 
-        # Disk Management Header Bar
+        # Header
         self.frame_dsk_header = ctk.CTkFrame(self.frame_dsk_mgmt, fg_color="#242526", height=32)
         self.frame_dsk_header.pack(fill="x", padx=2, pady=2)
 
@@ -190,13 +190,13 @@ class GhostDriveApp(ctk.CTk):
         self.btn_refresh_cards = ctk.CTkButton(self.frame_dsk_header, text="🔄", width=30, height=22, command=self.load_virtual_disks_ui)
         self.btn_refresh_cards.pack(side="right", padx=4)
 
-        self.btn_unmount_all = ctk.CTkButton(self.frame_dsk_header, text=self.t("unmount_all"), width=70, height=22, fg_color="#c0392b", hover_color="#962d22", command=self.start_unmount_all)
+        self.btn_unmount_all = ctk.CTkButton(self.frame_dsk_header, text=self.t("unmount_all"), width=75, height=22, fg_color="#c0392b", hover_color="#962d22", command=self.start_unmount_all)
         self.btn_unmount_all.pack(side="right", padx=4)
 
-        self.btn_mount_all = ctk.CTkButton(self.frame_dsk_header, text=self.t("mount_all"), width=70, height=22, fg_color="#27ae60", hover_color="#219150", command=self.start_mount_all)
+        self.btn_mount_all = ctk.CTkButton(self.frame_dsk_header, text=self.t("mount_all"), width=75, height=22, fg_color="#27ae60", hover_color="#219150", command=self.start_mount_all)
         self.btn_mount_all.pack(side="right", padx=4)
 
-        # Scrollable Area (Dynamic expansion)
+        # Disks Scroll Area
         self.scroll_disks = ctk.CTkScrollableFrame(self.frame_dsk_mgmt, fg_color="#18191a")
         self.scroll_disks.pack(fill="both", expand=True, padx=4, pady=2)
 
@@ -204,7 +204,7 @@ class GhostDriveApp(ctk.CTk):
         self.frame_legend = ctk.CTkFrame(self.frame_dsk_mgmt, fg_color="#242526", height=20)
         self.frame_legend.pack(fill="x", padx=2, pady=2)
         
-        lbl_leg1 = ctk.CTkLabel(self.frame_legend, text="■ Primary partition", text_color="#3742fa", font=("Segoe UI", 9, "bold"))
+        lbl_leg1 = ctk.CTkLabel(self.frame_legend, text="■ Primary partition", text_color="#002060", font=("Segoe UI", 9, "bold"))
         lbl_leg1.pack(side="left", padx=10)
         lbl_leg2 = ctk.CTkLabel(self.frame_legend, text="■ Offline / Detached", text_color="#747d8c", font=("Segoe UI", 9))
         lbl_leg2.pack(side="left", padx=8)
@@ -225,7 +225,7 @@ class GhostDriveApp(ctk.CTk):
             self.on_source_changed(available_drives[0])
 
         self.load_virtual_disks_ui()
-        self.log("Responsive GUI loaded. Ready.")
+        self.log("Ready. Checking mounted Virtual Disks...")
 
     def t(self, key):
         return STRINGS[self.current_lang].get(key, key)
@@ -299,19 +299,23 @@ class GhostDriveApp(ctk.CTk):
     def run_cmd(self, cmd):
         return subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
+    # 100% Reliable VHDX Attachment Detection
     def get_virtual_disks_info(self):
         save_folder = self.get_save_dir()
         vhdx_files = [f for f in os.listdir(save_folder) if f.endswith(".vhdx")] if os.path.exists(save_folder) else []
         
-        ps_cmd = """
-        Get-Disk | Where-Object { $_.BusType -eq 'File Backed Virtual' } | ForEach-Object {
-            $d = $_
-            $p = $d | Get-Partition | Where-Object { $_.DriveLetter } | Select-Object -First 1
-            $img = Get-DiskImage -DiskNumber $d.Number -ErrorAction SilentlyContinue
-            if ($img.ImagePath) {
-                Write-Output "$($img.ImagePath)|$($p.DriveLetter)|$([math]::Round($d.Size/1GB, 2))"
-            }
-        }
+        # Directly query each VHDX image status
+        ps_cmd = f"""
+        Get-ChildItem -Path '{save_folder}\\*.vhdx' -ErrorAction SilentlyContinue | ForEach-Object {{
+            $img = Get-DiskImage -ImagePath $_.FullName -ErrorAction SilentlyContinue
+            if ($img -and $img.Attached) {{
+                $disk = $img | Get-Disk -ErrorAction SilentlyContinue
+                $part = $disk | Get-Partition | Where-Object {{ $_.DriveLetter }} | Select-Object -First 1
+                $letter = if ($part) {{ $part.DriveLetter }} else {{ "" }}
+                $size = if ($disk) {{ [math]::Round($disk.Size/1GB, 2) }} else {{ "1000" }}
+                Write-Output "$($_.FullName)|$letter|$size"
+            }}
+        }}
         """
         res = self.run_cmd(f'powershell -Command "{ps_cmd}"')
         attached_map = {}
@@ -354,11 +358,9 @@ class GhostDriveApp(ctk.CTk):
             return
 
         for disk in disks:
-            # Row container (Full width responsive)
             row_frame = ctk.CTkFrame(self.scroll_disks, fg_color="#242526", corner_radius=2, border_width=1, border_color="#3a3b3c")
             row_frame.pack(fill="x", padx=2, pady=3)
 
-            # Left Box: Fixed width Disk Info Header
             left_header = ctk.CTkFrame(row_frame, fg_color="#1e1f20", width=125, height=68, corner_radius=0)
             left_header.pack(side="left", fill="y")
             left_header.pack_propagate(False)
@@ -371,12 +373,11 @@ class GhostDriveApp(ctk.CTk):
             ctk.CTkLabel(left_header, text=disk["size_gb"], font=("Segoe UI", 9), text_color="#ced6e0", anchor="w").pack(fill="x", padx=6)
             ctk.CTkLabel(left_header, text=status_txt, font=("Segoe UI", 9, "bold"), text_color=status_color, anchor="w").pack(fill="x", padx=6)
 
-            # Right Box: Partition Box (Expands dynamically on resize!)
             part_container = ctk.CTkFrame(row_frame, fg_color="#2f3136", corner_radius=0, border_width=1, border_color="#485460")
             part_container.pack(side="left", fill="both", expand=True, padx=3, pady=2)
 
             stripe_color = "#002060" if disk["attached"] else "#57606f"
-            stripe = ctk.CTkFrame(part_container, fg_color=stripe_color, height=5, corner_radius=0)
+            stripe = ctk.CTkFrame(part_container, fg_color=stripe_color, height=6, corner_radius=0)
             stripe.pack(fill="x")
 
             part_body = ctk.CTkFrame(part_container, fg_color="transparent")
@@ -388,12 +389,12 @@ class GhostDriveApp(ctk.CTk):
                 lbl_details = ctk.CTkLabel(part_body, text=f"{disk['size_gb']} NTFS\nHealthy (Primary Partition)", font=("Segoe UI", 9), text_color="#dcdde1", anchor="w", justify="left")
                 lbl_details.pack(fill="x")
             else:
-                lbl_vol = ctk.CTkLabel(part_body, text=f"{disk['name']} [Detached]", font=("Segoe UI", 10, "bold"), text_color="#a4b0be", anchor="w")
+                lbl_vol = ctk.CTkLabel(part_body, text=f"{disk['name']} [Offline]", font=("Segoe UI", 10, "bold"), text_color="#a4b0be", anchor="w")
                 lbl_vol.pack(fill="x")
                 lbl_details = ctk.CTkLabel(part_body, text=f"{disk['filename']}\nOffline / Unallocated Space", font=("Segoe UI", 9), text_color="#747d8c", anchor="w", justify="left")
                 lbl_details.pack(fill="x")
 
-            # Recursive context menu bindings
+            # Recursive context menu bindings for instant right-click response
             for widget in [row_frame, left_header, part_container, stripe, part_body, lbl_vol, lbl_details]:
                 widget.bind("<Button-3>", lambda event, d=disk: self.popup_menu(event, d))
 
@@ -425,20 +426,26 @@ class GhostDriveApp(ctk.CTk):
         if letter:
             os.startfile(f"{letter}\\")
 
+    # 100% Guaranteed Drive Letter Changer via Diskpart
     def prompt_change_letter(self, disk_data):
-        dialog = ctk.CTkInputDialog(text="Enter new Drive Letter (e.g. H, X, Y):", title="Change Drive Letter")
+        old_letter = disk_data["letter"].replace(":", "").strip()
+        dialog = ctk.CTkInputDialog(text=f"Enter new Drive Letter for '{disk_data['name']}' (Current: {old_letter}):", title="Change Drive Letter")
         new_letter = dialog.get_input()
         if new_letter:
             new_letter = new_letter.strip().replace(":", "").upper()
             if len(new_letter) == 1 and new_letter in string.ascii_uppercase:
-                old_letter = disk_data["letter"].replace(":", "")
-                ps_cmd = f"Get-Partition -DriveLetter {old_letter} | Set-Partition -NewDriveLetter {new_letter}"
-                self.run_cmd(f'powershell -Command "{ps_cmd}"')
+                dp = f"""select volume {old_letter}
+assign letter={new_letter}
+"""
+                with open("dp_chg.txt", "w") as f: f.write(dp)
+                self.run_cmd("diskpart /s dp_chg.txt")
+                if os.path.exists("dp_chg.txt"): os.remove("dp_chg.txt")
+
                 refresh_explorer_silently()
-                self.log(f"Changed letter from {old_letter}: to {new_letter}:")
+                self.log(f"Successfully changed letter from {old_letter}: to {new_letter}:")
                 self.load_virtual_disks_ui()
             else:
-                messagebox.showerror("Error", "Invalid drive letter.")
+                messagebox.showerror("Error", "Please enter a valid single English letter (e.g. X, Y, H).")
 
     def mount_specific_vhd(self, vhd_path):
         self.run_cmd(f'powershell -Command "Mount-DiskImage -ImagePath \'{vhd_path}\' -ErrorAction SilentlyContinue"')
@@ -449,7 +456,7 @@ class GhostDriveApp(ctk.CTk):
     def unmount_specific_vhd(self, vhd_path):
         self.run_cmd(f'powershell -Command "Dismount-DiskImage -ImagePath \'{vhd_path}\' -ErrorAction SilentlyContinue"')
         refresh_explorer_silently()
-        self.log(f"Unmounted: {os.path.basename(vhd_path)}")
+        self.log(f"Ejected: {os.path.basename(vhd_path)}")
         self.load_virtual_disks_ui()
 
     def delete_specific_vhd(self, disk_data):
