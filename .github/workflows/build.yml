@@ -23,7 +23,7 @@ jobs:
 
     - name: Build Standalone EXE
       run: |
-        pyinstaller --noconsole --onefile --name "GhostDriveWizard" app.py
+        pyinstaller --noconsole --onefile --uac-admin --name "GhostDriveWizard" app.py
 
     - name: Upload EXE
       uses: actions/upload-artifact@v4
